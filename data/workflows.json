@@ -1,0 +1,1453 @@
+[
+  {
+    "id": "wf_autonomous_qualifier",
+    "name": "Autonomous Lead Qualifier & Outreach Agent",
+    "description": "Full-stack pipeline: Scrapes incoming prospect -> AI Agent scores ICP -> Condition routes -> Verified Email -> AI drafts 3-touch sequence -> Stores in CRM.",
+    "category": "prospecting",
+    "active": true,
+    "createdAt": "2026-10-10T19:39:52.482Z",
+    "updatedAt": "2026-10-10T19:39:52.482Z",
+    "lastRunStatus": "success",
+    "runsCount": 16,
+    "nodes": [
+      {
+        "id": "node_trigger",
+        "name": "Manual Test Lead",
+        "type": "manual_trigger",
+        "category": "trigger",
+        "position": {
+          "x": 80,
+          "y": 220
+        },
+        "data": {
+          "payload": "{\n  \"company\": \"Vanguard Robotics Inc\",\n  \"website\": \"https://vanguardrobotics.example.com\",\n  \"contactName\": \"Elena Rostova\",\n  \"email\": \"elena.rostova@vanguardrobotics.example.com\",\n  \"role\": \"VP of Product & Engineering\",\n  \"industry\": \"Warehouse Automation & AI\"\n}"
+        }
+      },
+      {
+        "id": "node_scraper",
+        "name": "Web Scraper & Crawler",
+        "type": "web_scraper",
+        "category": "tool",
+        "position": {
+          "x": 380,
+          "y": 220
+        },
+        "data": {
+          "url": "{{$json.website}}",
+          "extractEmails": true,
+          "extractPhones": true,
+          "extractSocials": true,
+          "maxDepth": 1
+        }
+      },
+      {
+        "id": "node_qualifier",
+        "name": "AI Lead Qualifier & Scorer",
+        "type": "ai_lead_qualifier",
+        "category": "ai",
+        "position": {
+          "x": 680,
+          "y": 220
+        },
+        "data": {
+          "targetIcp": "B2B Software, AI Robotics, or High-Growth Automation companies with 10-500 employees.",
+          "scoringRubric": "Evaluate tech sophistication, B2B intent, and leadership roles."
+        }
+      },
+      {
+        "id": "node_condition",
+        "name": "Score >= 70 Check",
+        "type": "condition_if",
+        "category": "logic",
+        "position": {
+          "x": 980,
+          "y": 220
+        },
+        "data": {
+          "combine": "AND",
+          "rules": [
+            {
+              "id": "rule_1",
+              "field": "json.score",
+              "operator": "greater_than",
+              "value": "70"
+            }
+          ]
+        }
+      },
+      {
+        "id": "node_email_verify",
+        "name": "Deep Email Verifier",
+        "type": "email_verifier",
+        "category": "tool",
+        "position": {
+          "x": 1300,
+          "y": 120
+        },
+        "data": {
+          "emailField": "{{$json.email}}",
+          "checkMx": true,
+          "checkDisposable": true,
+          "checkSmtp": true
+        }
+      },
+      {
+        "id": "node_ai_agent",
+        "name": "Autonomous Outreach Agent",
+        "type": "ai_agent",
+        "category": "ai",
+        "position": {
+          "x": 1600,
+          "y": 120
+        },
+        "data": {
+          "agentName": "Outreach & Value Strategist",
+          "role": "Executive B2B Outreach Specialist",
+          "objective": "Analyze company tech profile, identify immediate ROI hooks, and craft a 3-touch hyper-personalized email pitch tailored directly to Elena Rostova.",
+          "maxSteps": 3,
+          "model": "gemini-2.5-flash",
+          "enabledTools": [
+            "web_search",
+            "scrape_website",
+            "verify_email"
+          ]
+        }
+      },
+      {
+        "id": "node_save_crm",
+        "name": "Save Qualified CRM Lead",
+        "type": "save_crm_lead",
+        "category": "action",
+        "position": {
+          "x": 1900,
+          "y": 120
+        },
+        "data": {
+          "tags": [
+            "AI Qualified",
+            "High ICP Fit",
+            "Automated Agent"
+          ],
+          "stage": "Qualified Opportunity",
+          "assignScore": true
+        }
+      },
+      {
+        "id": "node_disqualify_alert",
+        "name": "Disqualified Lead Alert",
+        "type": "send_notification",
+        "category": "action",
+        "position": {
+          "x": 1300,
+          "y": 380
+        },
+        "data": {
+          "destination": "webhook",
+          "webhookUrl": "https://discord.com/api/webhooks/mock/low-fit-leads",
+          "messageTemplate": "⚠️ **Lead Below Threshold**: {{$json.company}} scored {{$json.score}}/100. Disqualified to protect sender reputation."
+        }
+      }
+    ],
+    "edges": [
+      {
+        "id": "e1",
+        "source": "node_trigger",
+        "target": "node_scraper",
+        "sourceHandle": "output",
+        "targetHandle": "input"
+      },
+      {
+        "id": "e2",
+        "source": "node_scraper",
+        "target": "node_qualifier",
+        "sourceHandle": "output",
+        "targetHandle": "input"
+      },
+      {
+        "id": "e3",
+        "source": "node_qualifier",
+        "target": "node_condition",
+        "sourceHandle": "output",
+        "targetHandle": "input"
+      },
+      {
+        "id": "e4",
+        "source": "node_condition",
+        "target": "node_email_verify",
+        "sourceHandle": "true",
+        "targetHandle": "input",
+        "label": "True (Score >= 70)"
+      },
+      {
+        "id": "e5",
+        "source": "node_condition",
+        "target": "node_disqualify_alert",
+        "sourceHandle": "false",
+        "targetHandle": "input",
+        "label": "False (Disqualified)"
+      },
+      {
+        "id": "e6",
+        "source": "node_email_verify",
+        "target": "node_ai_agent",
+        "sourceHandle": "output",
+        "targetHandle": "input"
+      },
+      {
+        "id": "e7",
+        "source": "node_ai_agent",
+        "target": "node_save_crm",
+        "sourceHandle": "output",
+        "targetHandle": "input"
+      }
+    ],
+    "lastRunAt": "2026-10-11T18:53:27.850Z"
+  },
+  {
+    "id": "wf_competitor_radar",
+    "name": "Competitor Radar & Pricing Intelligence Agent",
+    "description": "Scheduled search discovery -> Autonomous Agent scrapes top competitors -> AI extracts pricing moves -> Dispatches instant notification.",
+    "category": "intelligence",
+    "active": true,
+    "createdAt": "2026-10-10T19:39:52.482Z",
+    "updatedAt": "2026-10-10T19:39:52.482Z",
+    "lastRunStatus": "idle",
+    "runsCount": 8,
+    "nodes": [
+      {
+        "id": "c_trigger",
+        "name": "Weekly Cron Schedule",
+        "type": "schedule_trigger",
+        "category": "trigger",
+        "position": {
+          "x": 80,
+          "y": 220
+        },
+        "data": {
+          "cron": "0 9 * * 1",
+          "intervalMinutes": 10080,
+          "enabled": true
+        }
+      },
+      {
+        "id": "c_search",
+        "name": "Search Competitor News",
+        "type": "search_discovery",
+        "category": "tool",
+        "position": {
+          "x": 380,
+          "y": 220
+        },
+        "data": {
+          "query": "top b2b data scraper competitors pricing update 2026",
+          "engine": "duckduckgo",
+          "maxResults": 5
+        }
+      },
+      {
+        "id": "c_agent",
+        "name": "Competitor Intelligence Agent",
+        "type": "ai_agent",
+        "category": "ai",
+        "position": {
+          "x": 680,
+          "y": 220
+        },
+        "data": {
+          "agentName": "Market Intel Agent",
+          "role": "Competitive Strategy Analyst",
+          "objective": "Inspect search results, use web scraping tool to review competitors, extract pricing changes, new feature releases, and synthesize actionable battlecard counters.",
+          "maxSteps": 3,
+          "model": "gemini-2.5-flash",
+          "enabledTools": [
+            "web_search",
+            "scrape_website"
+          ]
+        }
+      },
+      {
+        "id": "c_condition",
+        "name": "High Impact Alert?",
+        "type": "condition_if",
+        "category": "logic",
+        "position": {
+          "x": 980,
+          "y": 220
+        },
+        "data": {
+          "combine": "AND",
+          "rules": [
+            {
+              "id": "r_1",
+              "field": "json.highImpactMove",
+              "operator": "equals",
+              "value": "true"
+            }
+          ]
+        }
+      },
+      {
+        "id": "c_alert",
+        "name": "Dispatch Urgent Battlecard Alert",
+        "type": "send_notification",
+        "category": "action",
+        "position": {
+          "x": 1280,
+          "y": 140
+        },
+        "data": {
+          "destination": "webhook",
+          "webhookUrl": "https://discord.com/api/webhooks/mock/competitor-intel",
+          "messageTemplate": "⚡ **Competitor Alert**: {{$json.competitorName}} made major pricing shift. Counters ready."
+        }
+      },
+      {
+        "id": "c_log",
+        "name": "Format Daily Digest",
+        "type": "code_transform",
+        "category": "tool",
+        "position": {
+          "x": 1280,
+          "y": 320
+        },
+        "data": {
+          "code": "return { status: 'logged', timestamp: new Date().toISOString(), summary: $input.summary || 'Routine monitoring' };"
+        }
+      }
+    ],
+    "edges": [
+      {
+        "id": "ce1",
+        "source": "c_trigger",
+        "target": "c_search",
+        "sourceHandle": "output",
+        "targetHandle": "input"
+      },
+      {
+        "id": "ce2",
+        "source": "c_search",
+        "target": "c_agent",
+        "sourceHandle": "output",
+        "targetHandle": "input"
+      },
+      {
+        "id": "ce3",
+        "source": "c_agent",
+        "target": "c_condition",
+        "sourceHandle": "output",
+        "targetHandle": "input"
+      },
+      {
+        "id": "ce4",
+        "source": "c_condition",
+        "target": "c_alert",
+        "sourceHandle": "true",
+        "targetHandle": "input",
+        "label": "True (High Impact)"
+      },
+      {
+        "id": "ce5",
+        "source": "c_condition",
+        "target": "c_log",
+        "sourceHandle": "false",
+        "targetHandle": "input",
+        "label": "False (Routine)"
+      }
+    ]
+  },
+  {
+    "id": "wf_contact_enrichment",
+    "name": "B2B Lead Enrichment & Deliverability Pipeline",
+    "description": "Enriches raw business domains -> Deep email verification -> Condition gates -> AI Battlecard Generator -> Platform Leads DB.",
+    "category": "enrichment",
+    "active": true,
+    "createdAt": "2026-10-10T19:39:52.482Z",
+    "updatedAt": "2026-10-10T19:39:52.482Z",
+    "lastRunStatus": "idle",
+    "runsCount": 22,
+    "nodes": [
+      {
+        "id": "e_trigger",
+        "name": "New Lead Found",
+        "type": "lead_discovered_trigger",
+        "category": "trigger",
+        "position": {
+          "x": 80,
+          "y": 220
+        },
+        "data": {
+          "minConfidenceScore": 70,
+          "requireEmail": true
+        }
+      },
+      {
+        "id": "e_scrape",
+        "name": "Web Scraper & Crawler",
+        "type": "web_scraper",
+        "category": "tool",
+        "position": {
+          "x": 380,
+          "y": 220
+        },
+        "data": {
+          "url": "{{$json.website}}",
+          "extractEmails": true,
+          "extractPhones": true
+        }
+      },
+      {
+        "id": "e_verify",
+        "name": "Deep Email Verifier",
+        "type": "email_verifier",
+        "category": "tool",
+        "position": {
+          "x": 680,
+          "y": 220
+        },
+        "data": {
+          "emailField": "{{$json.email}}",
+          "checkMx": true,
+          "checkDisposable": true,
+          "checkSmtp": true
+        }
+      },
+      {
+        "id": "e_condition",
+        "name": "Email Valid & Deliverable?",
+        "type": "condition_if",
+        "category": "logic",
+        "position": {
+          "x": 980,
+          "y": 220
+        },
+        "data": {
+          "combine": "AND",
+          "rules": [
+            {
+              "id": "rule_valid",
+              "field": "json.emailValid",
+              "operator": "equals",
+              "value": "true"
+            }
+          ]
+        }
+      },
+      {
+        "id": "e_pitch",
+        "name": "AI Personalized Pitch Creator",
+        "type": "ai_generate_text",
+        "category": "ai",
+        "position": {
+          "x": 1280,
+          "y": 140
+        },
+        "data": {
+          "model": "gemini-2.5-flash",
+          "prompt": "Create a direct, data-backed 80-word outreach opener for {{$json.contactName}} at {{$json.company}}. Mention their specific value proposition and offer a tailored 5-minute ROI breakdown.",
+          "temperature": 0.6
+        }
+      },
+      {
+        "id": "e_save",
+        "name": "Save to Platform CRM",
+        "type": "save_crm_lead",
+        "category": "action",
+        "position": {
+          "x": 1580,
+          "y": 140
+        },
+        "data": {
+          "tags": [
+            "Deliverable Email",
+            "Personalized Hook Generated"
+          ],
+          "stage": "Ready to Send",
+          "assignScore": true
+        }
+      },
+      {
+        "id": "e_search_alt",
+        "name": "Search Alternate Contacts",
+        "type": "search_discovery",
+        "category": "tool",
+        "position": {
+          "x": 1280,
+          "y": 320
+        },
+        "data": {
+          "query": "site:linkedin.com/in \"{{$json.company}}\" \"Director\"",
+          "engine": "duckduckgo",
+          "maxResults": 3
+        }
+      }
+    ],
+    "edges": [
+      {
+        "id": "ee1",
+        "source": "e_trigger",
+        "target": "e_scrape",
+        "sourceHandle": "output",
+        "targetHandle": "input"
+      },
+      {
+        "id": "ee2",
+        "source": "e_scrape",
+        "target": "e_verify",
+        "sourceHandle": "output",
+        "targetHandle": "input"
+      },
+      {
+        "id": "ee3",
+        "source": "e_verify",
+        "target": "e_condition",
+        "sourceHandle": "output",
+        "targetHandle": "input"
+      },
+      {
+        "id": "ee4",
+        "source": "e_condition",
+        "target": "e_pitch",
+        "sourceHandle": "true",
+        "targetHandle": "input",
+        "label": "True (Valid)"
+      },
+      {
+        "id": "ee5",
+        "source": "e_condition",
+        "target": "e_search_alt",
+        "sourceHandle": "false",
+        "targetHandle": "input",
+        "label": "False (Invalid Email)"
+      },
+      {
+        "id": "ee6",
+        "source": "e_pitch",
+        "target": "e_save",
+        "sourceHandle": "output",
+        "targetHandle": "input"
+      }
+    ]
+  },
+  {
+    "id": "wf_inbound_enrichment",
+    "name": "Inbound Webhook to Clearbit & Salesforce CRM Router",
+    "description": "Real-time Webhook trigger -> Clearbit domain enrichment -> AI ICP qualifier -> Enterprise vs SMB router -> Salesforce CRM Sync or Slack Channel Alert.",
+    "category": "enrichment",
+    "active": true,
+    "createdAt": "2026-10-11T18:38:35.103Z",
+    "updatedAt": "2026-10-11T18:38:35.103Z",
+    "lastRunStatus": "success",
+    "runsCount": 32,
+    "nodes": [
+      {
+        "id": "inbound_trigger",
+        "name": "Inbound Webhook Event",
+        "type": "webhook_trigger",
+        "category": "trigger",
+        "position": {
+          "x": 80,
+          "y": 220
+        },
+        "data": {
+          "path": "/webhook/demo-request",
+          "httpMethod": "POST"
+        }
+      },
+      {
+        "id": "inbound_clearbit",
+        "name": "Clearbit Domain Intel",
+        "type": "clearbit_enrichment",
+        "category": "integration",
+        "position": {
+          "x": 380,
+          "y": 220
+        },
+        "data": {
+          "domain": "{{$json.website}}"
+        }
+      },
+      {
+        "id": "inbound_qualifier",
+        "name": "AI Lead Qualifier & Scorer",
+        "type": "ai_lead_qualifier",
+        "category": "ai",
+        "position": {
+          "x": 680,
+          "y": 220
+        },
+        "data": {
+          "targetIcp": "High-growth technology and enterprise SaaS companies with 20+ employees.",
+          "scoringRubric": "Evaluate revenue band, employee count, and website tech maturity."
+        }
+      },
+      {
+        "id": "inbound_router",
+        "name": "Enterprise Tier Router",
+        "type": "switch_router",
+        "category": "logic",
+        "position": {
+          "x": 980,
+          "y": 220
+        },
+        "data": {
+          "field": "json.tier",
+          "cases": [
+            {
+              "id": "case_a",
+              "match": "A",
+              "handle": "case_enterprise"
+            },
+            {
+              "id": "case_b",
+              "match": "B",
+              "handle": "case_midmarket"
+            },
+            {
+              "id": "case_c",
+              "match": "C",
+              "handle": "case_smb"
+            }
+          ]
+        }
+      },
+      {
+        "id": "inbound_salesforce",
+        "name": "Salesforce Enterprise Lead",
+        "type": "salesforce_crm",
+        "category": "integration",
+        "position": {
+          "x": 1300,
+          "y": 120
+        },
+        "data": {
+          "leadStatus": "Working - Immediate AE Escalation",
+          "rating": "Hot"
+        }
+      },
+      {
+        "id": "inbound_slack_enterprise",
+        "name": "Slack VIP AE Alert",
+        "type": "slack_notification",
+        "category": "integration",
+        "position": {
+          "x": 1620,
+          "y": 120
+        },
+        "data": {
+          "channel": "#enterprise-inbound-leads",
+          "message": "🔥 *ENTERPRISE INBOUND:* {{$json.company}} (Tier A, Score: {{$json.score}}). Assigned to Enterprise AE team immediately!"
+        }
+      },
+      {
+        "id": "inbound_sheets",
+        "name": "Log SMB to Google Sheets",
+        "type": "google_sheets",
+        "category": "integration",
+        "position": {
+          "x": 1300,
+          "y": 340
+        },
+        "data": {
+          "spreadsheetName": "LeadHook_SelfServe_Signups",
+          "sheetName": "Inbound Standard"
+        }
+      }
+    ],
+    "edges": [
+      {
+        "id": "ie1",
+        "source": "inbound_trigger",
+        "target": "inbound_clearbit",
+        "sourceHandle": "output",
+        "targetHandle": "input"
+      },
+      {
+        "id": "ie2",
+        "source": "inbound_clearbit",
+        "target": "inbound_qualifier",
+        "sourceHandle": "output",
+        "targetHandle": "input"
+      },
+      {
+        "id": "ie3",
+        "source": "inbound_qualifier",
+        "target": "inbound_router",
+        "sourceHandle": "output",
+        "targetHandle": "input"
+      },
+      {
+        "id": "ie4",
+        "source": "inbound_router",
+        "target": "inbound_salesforce",
+        "sourceHandle": "case_enterprise",
+        "targetHandle": "input",
+        "label": "Tier A (Enterprise)"
+      },
+      {
+        "id": "ie5",
+        "source": "inbound_router",
+        "target": "inbound_sheets",
+        "sourceHandle": "case_smb",
+        "targetHandle": "input",
+        "label": "Tier C (Self-Serve)"
+      },
+      {
+        "id": "ie6",
+        "source": "inbound_salesforce",
+        "target": "inbound_slack_enterprise",
+        "sourceHandle": "output",
+        "targetHandle": "input"
+      }
+    ],
+    "lastRunAt": "2026-10-11T18:38:52.580Z"
+  },
+  {
+    "id": "wf_executive_prospector",
+    "name": "Executive Prospector & Multi-Stage Cold Email Sequence",
+    "description": "Manual Trigger -> LinkedIn search discovery -> Deep bio scraping -> AI Dossier research -> Email deliverability check -> AI cold sequence -> Resend email dispatch.",
+    "category": "prospecting",
+    "active": true,
+    "createdAt": "2026-10-11T18:38:35.103Z",
+    "updatedAt": "2026-10-11T18:38:35.103Z",
+    "lastRunStatus": "idle",
+    "runsCount": 27,
+    "nodes": [
+      {
+        "id": "exec_trigger",
+        "name": "Target Account Input",
+        "type": "manual_trigger",
+        "category": "trigger",
+        "position": {
+          "x": 80,
+          "y": 220
+        },
+        "data": {
+          "payload": "{\n  \"company\": \"Apex Cloud Dynamics\",\n  \"website\": \"https://apexclouddynamics.example.com\",\n  \"contactName\": \"Marcus Vance\",\n  \"email\": \"marcus.vance@apexclouddynamics.example.com\",\n  \"role\": \"Chief Revenue Officer\",\n  \"industry\": \"Enterprise Cloud Infrastructure\"\n}"
+        }
+      },
+      {
+        "id": "exec_search",
+        "name": "Search Executive Bio",
+        "type": "search_discovery",
+        "category": "tool",
+        "position": {
+          "x": 380,
+          "y": 220
+        },
+        "data": {
+          "query": "site:linkedin.com/in \"{{$json.contactName}}\" \"{{$json.company}}\"",
+          "engine": "duckduckgo",
+          "maxResults": 3
+        }
+      },
+      {
+        "id": "exec_dossier",
+        "name": "AI Executive Dossier",
+        "type": "ai_research_dossier",
+        "category": "ai",
+        "position": {
+          "x": 680,
+          "y": 220
+        },
+        "data": {
+          "company": "{{$json.company}}",
+          "includeCompetitors": true,
+          "includeIcebreakers": true
+        }
+      },
+      {
+        "id": "exec_verify",
+        "name": "Deep Email Verifier",
+        "type": "email_verifier",
+        "category": "tool",
+        "position": {
+          "x": 980,
+          "y": 220
+        },
+        "data": {
+          "emailField": "{{$json.email}}",
+          "checkMx": true,
+          "checkDisposable": true,
+          "checkSmtp": true
+        }
+      },
+      {
+        "id": "exec_ai_pitch",
+        "name": "AI 3-Stage Cold Pitch",
+        "type": "ai_generate_text",
+        "category": "ai",
+        "position": {
+          "x": 1280,
+          "y": 220
+        },
+        "data": {
+          "model": "gemini-2.5-flash",
+          "prompt": "Draft a high-converting, personalized 3-stage outbound email sequence for {{$json.contactName}}, {{$json.role}} at {{$json.company}}.\nHighlight how our AI sales engine automates verified research and doubles prospect reply rates. Keep tone executive and concise."
+        }
+      },
+      {
+        "id": "exec_dispatch",
+        "name": "Email Dispatch (Resend)",
+        "type": "email_dispatch",
+        "category": "integration",
+        "position": {
+          "x": 1580,
+          "y": 220
+        },
+        "data": {
+          "provider": "Resend API",
+          "to": "{{$json.email}}",
+          "subject": "Brief question regarding {{$json.company}} sales efficiency",
+          "body": "Hi {{$json.contactName}},\n\nNoticed your leadership in expanding enterprise accounts at {{$json.company}}..."
+        }
+      }
+    ],
+    "edges": [
+      {
+        "id": "exe1",
+        "source": "exec_trigger",
+        "target": "exec_search",
+        "sourceHandle": "output",
+        "targetHandle": "input"
+      },
+      {
+        "id": "exe2",
+        "source": "exec_search",
+        "target": "exec_dossier",
+        "sourceHandle": "output",
+        "targetHandle": "input"
+      },
+      {
+        "id": "exe3",
+        "source": "exec_dossier",
+        "target": "exec_verify",
+        "sourceHandle": "output",
+        "targetHandle": "input"
+      },
+      {
+        "id": "exe4",
+        "source": "exec_verify",
+        "target": "exec_ai_pitch",
+        "sourceHandle": "output",
+        "targetHandle": "input"
+      },
+      {
+        "id": "exe5",
+        "source": "exec_ai_pitch",
+        "target": "exec_dispatch",
+        "sourceHandle": "output",
+        "targetHandle": "input"
+      }
+    ]
+  },
+  {
+    "id": "wf_hiring_surge",
+    "name": "Job Board Signal & Hiring Urgency Prospector",
+    "description": "Scheduled scraping of hiring pages -> AI Schema extraction of open roles -> AI ICP buying urgency scorer -> Condition check -> Save CRM lead -> Telegram alert.",
+    "category": "intelligence",
+    "active": true,
+    "createdAt": "2026-10-11T18:38:35.103Z",
+    "updatedAt": "2026-10-11T18:38:35.103Z",
+    "lastRunStatus": "idle",
+    "runsCount": 16,
+    "nodes": [
+      {
+        "id": "hiring_schedule",
+        "name": "Daily Hiring Scan Schedule",
+        "type": "schedule_trigger",
+        "category": "trigger",
+        "position": {
+          "x": 80,
+          "y": 220
+        },
+        "data": {
+          "cron": "0 8 * * *",
+          "intervalMinutes": 1440,
+          "enabled": true
+        }
+      },
+      {
+        "id": "hiring_scrape",
+        "name": "Scrape Careers Portal",
+        "type": "web_scraper",
+        "category": "tool",
+        "position": {
+          "x": 380,
+          "y": 220
+        },
+        "data": {
+          "url": "{{$json.website}}/careers",
+          "extractEmails": true,
+          "extractPhones": false
+        }
+      },
+      {
+        "id": "hiring_schema",
+        "name": "AI Schema Extractor",
+        "type": "ai_extract_structured_data",
+        "category": "ai",
+        "position": {
+          "x": 680,
+          "y": 220
+        },
+        "data": {
+          "sourceField": "json.textSnippet",
+          "targetSchema": "{\n  \"openSalesRolesCount\": \"number\",\n  \"seniorEngineeringOpenings\": [\n    \"string\"\n  ],\n  \"urgencyKeywords\": [\n    \"string\"\n  ],\n  \"estimatedHiringGrowthPct\": \"number\"\n}"
+        }
+      },
+      {
+        "id": "hiring_qualifier",
+        "name": "AI Buying Intent Scorer",
+        "type": "ai_lead_qualifier",
+        "category": "ai",
+        "position": {
+          "x": 980,
+          "y": 220
+        },
+        "data": {
+          "targetIcp": "Companies hiring 3+ sales development or engineering roles.",
+          "scoringRubric": "High score if company has aggressive outbound hiring or recent funding announcements."
+        }
+      },
+      {
+        "id": "hiring_condition",
+        "name": "Urgent Hiring (Score >= 75)?",
+        "type": "condition_if",
+        "category": "logic",
+        "position": {
+          "x": 1280,
+          "y": 220
+        },
+        "data": {
+          "combine": "AND",
+          "rules": [
+            {
+              "id": "h_rule_1",
+              "field": "json.score",
+              "operator": "greater_than",
+              "value": "75"
+            }
+          ]
+        }
+      },
+      {
+        "id": "hiring_crm",
+        "name": "Save Priority CRM Lead",
+        "type": "save_crm_lead",
+        "category": "action",
+        "position": {
+          "x": 1580,
+          "y": 140
+        },
+        "data": {
+          "tags": [
+            "Hiring Surge Signal",
+            "High Intent",
+            "Sales Tech Fit"
+          ],
+          "stage": "High Priority Outreach"
+        }
+      },
+      {
+        "id": "hiring_telegram",
+        "name": "Telegram Urgent Push",
+        "type": "telegram_alert",
+        "category": "integration",
+        "position": {
+          "x": 1880,
+          "y": 140
+        },
+        "data": {
+          "chatId": "@LeadHookAlerts",
+          "message": "🚨 *HIRING SURGE DETECTED:* {{$json.company}} is aggressively expanding SDR headcount! Score: {{$json.score}}"
+        }
+      },
+      {
+        "id": "hiring_delay",
+        "name": "Low Urgency Cooldown",
+        "type": "delay",
+        "category": "tool",
+        "position": {
+          "x": 1580,
+          "y": 340
+        },
+        "data": {
+          "seconds": 2
+        }
+      }
+    ],
+    "edges": [
+      {
+        "id": "he1",
+        "source": "hiring_schedule",
+        "target": "hiring_scrape",
+        "sourceHandle": "output",
+        "targetHandle": "input"
+      },
+      {
+        "id": "he2",
+        "source": "hiring_scrape",
+        "target": "hiring_schema",
+        "sourceHandle": "output",
+        "targetHandle": "input"
+      },
+      {
+        "id": "he3",
+        "source": "hiring_schema",
+        "target": "hiring_qualifier",
+        "sourceHandle": "output",
+        "targetHandle": "input"
+      },
+      {
+        "id": "he4",
+        "source": "hiring_qualifier",
+        "target": "hiring_condition",
+        "sourceHandle": "output",
+        "targetHandle": "input"
+      },
+      {
+        "id": "he5",
+        "source": "hiring_condition",
+        "target": "hiring_crm",
+        "sourceHandle": "true",
+        "targetHandle": "input",
+        "label": "True (Score >= 75)"
+      },
+      {
+        "id": "he6",
+        "source": "hiring_condition",
+        "target": "hiring_delay",
+        "sourceHandle": "false",
+        "targetHandle": "input",
+        "label": "False (Standard)"
+      },
+      {
+        "id": "he7",
+        "source": "hiring_crm",
+        "target": "hiring_telegram",
+        "sourceHandle": "output",
+        "targetHandle": "input"
+      }
+    ]
+  },
+  {
+    "id": "wf_event_nurture",
+    "name": "Event & Webinar Attendee AI Nurture Pipeline",
+    "description": "Incoming attendee webhook -> Email syntax & MX deliverability check -> AI ICP Qualifier -> AI Personalized Follow-up -> Google Sheets Append -> Slack Alert.",
+    "category": "prospecting",
+    "active": true,
+    "createdAt": "2026-10-11T18:38:35.103Z",
+    "updatedAt": "2026-10-11T18:38:35.103Z",
+    "lastRunStatus": "idle",
+    "runsCount": 14,
+    "nodes": [
+      {
+        "id": "evt_trigger",
+        "name": "Webinar Attendee Webhook",
+        "type": "webhook_trigger",
+        "category": "trigger",
+        "position": {
+          "x": 80,
+          "y": 220
+        },
+        "data": {
+          "path": "/webhook/webinar-registered",
+          "httpMethod": "POST"
+        }
+      },
+      {
+        "id": "evt_verify",
+        "name": "Deep Email Verifier",
+        "type": "email_verifier",
+        "category": "tool",
+        "position": {
+          "x": 380,
+          "y": 220
+        },
+        "data": {
+          "emailField": "{{$json.email}}",
+          "checkMx": true,
+          "checkDisposable": true
+        }
+      },
+      {
+        "id": "evt_qualifier",
+        "name": "AI Lead Qualifier & Scorer",
+        "type": "ai_lead_qualifier",
+        "category": "ai",
+        "position": {
+          "x": 680,
+          "y": 220
+        },
+        "data": {
+          "targetIcp": "B2B SaaS, Data, and AI leaders registered for virtual summits.",
+          "scoringRubric": "Check title seniority and company domain authority."
+        }
+      },
+      {
+        "id": "evt_pitch",
+        "name": "AI Tailored Webinar Recap",
+        "type": "ai_generate_text",
+        "category": "ai",
+        "position": {
+          "x": 980,
+          "y": 220
+        },
+        "data": {
+          "model": "gemini-2.5-flash",
+          "prompt": "Draft a personalized webinar post-event recap for {{$json.contactName}} from {{$json.company}}. Include 3 key takeaways and a direct invite to a private 1-on-1 strategy session."
+        }
+      },
+      {
+        "id": "evt_sheets",
+        "name": "Google Sheets Attendee Log",
+        "type": "google_sheets",
+        "category": "integration",
+        "position": {
+          "x": 1280,
+          "y": 140
+        },
+        "data": {
+          "spreadsheetName": "Webinar_Master_Attendance_2026",
+          "sheetName": "All Registrants"
+        }
+      },
+      {
+        "id": "evt_slack",
+        "name": "Slack Attendance Alert",
+        "type": "slack_notification",
+        "category": "integration",
+        "position": {
+          "x": 1280,
+          "y": 320
+        },
+        "data": {
+          "channel": "#webinar-lead-tracker",
+          "message": "🎟️ *Webinar Lead Processed:* {{$json.contactName}} at {{$json.company}} (Score: {{$json.score}}/100). Personal recap dispatched."
+        }
+      }
+    ],
+    "edges": [
+      {
+        "id": "ev1",
+        "source": "evt_trigger",
+        "target": "evt_verify",
+        "sourceHandle": "output",
+        "targetHandle": "input"
+      },
+      {
+        "id": "ev2",
+        "source": "evt_verify",
+        "target": "evt_qualifier",
+        "sourceHandle": "output",
+        "targetHandle": "input"
+      },
+      {
+        "id": "ev3",
+        "source": "evt_qualifier",
+        "target": "evt_pitch",
+        "sourceHandle": "output",
+        "targetHandle": "input"
+      },
+      {
+        "id": "ev4",
+        "source": "evt_pitch",
+        "target": "evt_sheets",
+        "sourceHandle": "output",
+        "targetHandle": "input"
+      },
+      {
+        "id": "ev5",
+        "source": "evt_pitch",
+        "target": "evt_slack",
+        "sourceHandle": "output",
+        "targetHandle": "input"
+      }
+    ]
+  },
+  {
+    "id": "wf_churn_escalation",
+    "name": "Customer Churn Risk & Sentiment Escalation Bot",
+    "description": "Incoming customer feedback webhook -> AI Sentiment & Buyer Intent analyzer -> IF Urgency > 70 condition gate -> Urgent Telegram & Slack Escalation -> Auto-draft recovery pitch.",
+    "category": "custom",
+    "active": true,
+    "createdAt": "2026-10-11T18:38:35.103Z",
+    "updatedAt": "2026-10-11T18:38:35.103Z",
+    "lastRunStatus": "idle",
+    "runsCount": 23,
+    "nodes": [
+      {
+        "id": "churn_webhook",
+        "name": "Customer Feedback Webhook",
+        "type": "webhook_trigger",
+        "category": "trigger",
+        "position": {
+          "x": 80,
+          "y": 220
+        },
+        "data": {
+          "path": "/webhook/nps-feedback",
+          "httpMethod": "POST"
+        }
+      },
+      {
+        "id": "churn_sentiment",
+        "name": "AI Sentiment & Urgency Analyzer",
+        "type": "ai_sentiment_analyzer",
+        "category": "ai",
+        "position": {
+          "x": 380,
+          "y": 220
+        },
+        "data": {
+          "textField": "json.feedback",
+          "minUrgencyScore": 70
+        }
+      },
+      {
+        "id": "churn_condition",
+        "name": "High Urgency or Churn Risk?",
+        "type": "condition_if",
+        "category": "logic",
+        "position": {
+          "x": 680,
+          "y": 220
+        },
+        "data": {
+          "combine": "AND",
+          "rules": [
+            {
+              "id": "c_risk_1",
+              "field": "json.urgencyScore",
+              "operator": "greater_than",
+              "value": "70"
+            }
+          ]
+        }
+      },
+      {
+        "id": "churn_telegram",
+        "name": "Telegram Urgent Escalation",
+        "type": "telegram_alert",
+        "category": "integration",
+        "position": {
+          "x": 980,
+          "y": 120
+        },
+        "data": {
+          "chatId": "@ExecutiveEscalationTeam",
+          "message": "🚨 *CHURN ALERT:* Client {{$json.company}} flagged high urgency (Score: {{$json.urgencyScore}}). Immediate executive reach-out required!"
+        }
+      },
+      {
+        "id": "churn_recovery_pitch",
+        "name": "AI Empathy Recovery Generator",
+        "type": "ai_generate_text",
+        "category": "ai",
+        "position": {
+          "x": 1280,
+          "y": 120
+        },
+        "data": {
+          "model": "gemini-2.5-flash",
+          "prompt": "Draft a consultative, empathetic executive recovery message to {{$json.contactName}} at {{$json.company}} addressing their feedback and offering immediate senior leadership resolution."
+        }
+      },
+      {
+        "id": "churn_slack",
+        "name": "Slack Standard Feedback Channel",
+        "type": "slack_notification",
+        "category": "integration",
+        "position": {
+          "x": 980,
+          "y": 340
+        },
+        "data": {
+          "channel": "#customer-sentiment-feed",
+          "message": "💬 Feedback received from {{$json.company}}: Sentiment: {{$json.sentimentAnalysis.sentiment}} (Score: {{$json.sentimentScore}})."
+        }
+      }
+    ],
+    "edges": [
+      {
+        "id": "ch1",
+        "source": "churn_webhook",
+        "target": "churn_sentiment",
+        "sourceHandle": "output",
+        "targetHandle": "input"
+      },
+      {
+        "id": "ch2",
+        "source": "churn_sentiment",
+        "target": "churn_condition",
+        "sourceHandle": "output",
+        "targetHandle": "input"
+      },
+      {
+        "id": "ch3",
+        "source": "churn_condition",
+        "target": "churn_telegram",
+        "sourceHandle": "true",
+        "targetHandle": "input",
+        "label": "True (Urgent Risk)"
+      },
+      {
+        "id": "ch4",
+        "source": "churn_condition",
+        "target": "churn_slack",
+        "sourceHandle": "false",
+        "targetHandle": "input",
+        "label": "False (Standard)"
+      },
+      {
+        "id": "ch5",
+        "source": "churn_telegram",
+        "target": "churn_recovery_pitch",
+        "sourceHandle": "output",
+        "targetHandle": "input"
+      }
+    ]
+  },
+  {
+    "id": "wf_directory_scraper",
+    "name": "Directory Deep-Scrape & Lead Verification Engine",
+    "description": "Scheduled batch scrape -> JS Code transformation & email extraction -> Deep MX verification -> Platform CRM Lead creation -> Airtable CRM Sync.",
+    "category": "verification",
+    "active": true,
+    "createdAt": "2026-10-11T18:38:35.103Z",
+    "updatedAt": "2026-10-11T18:38:35.103Z",
+    "lastRunStatus": "idle",
+    "runsCount": 42,
+    "nodes": [
+      {
+        "id": "dir_trigger",
+        "name": "Scheduled Directory Scan",
+        "type": "schedule_trigger",
+        "category": "trigger",
+        "position": {
+          "x": 80,
+          "y": 220
+        },
+        "data": {
+          "cron": "0 4 * * 1-5",
+          "intervalMinutes": 1440,
+          "enabled": true
+        }
+      },
+      {
+        "id": "dir_scraper",
+        "name": "Web Scraper & Crawler",
+        "type": "web_scraper",
+        "category": "tool",
+        "position": {
+          "x": 380,
+          "y": 220
+        },
+        "data": {
+          "url": "{{$json.website}}",
+          "extractEmails": true,
+          "extractPhones": true,
+          "extractSocials": true,
+          "maxDepth": 1
+        }
+      },
+      {
+        "id": "dir_transform",
+        "name": "JS Clean & Dedupe Transformer",
+        "type": "code_transform",
+        "category": "tool",
+        "position": {
+          "x": 680,
+          "y": 220
+        },
+        "data": {
+          "code": "const emails = Array.isArray($input.emailsFound) ? $input.emailsFound : [$input.email].filter(Boolean);\nconst cleanEmail = emails.length > 0 ? emails[0].toLowerCase().trim() : '';\nreturn {\n  ...$input,\n  email: cleanEmail,\n  sanitizedAt: new Date().toISOString(),\n  readyForVerification: Boolean(cleanEmail),\n};"
+        }
+      },
+      {
+        "id": "dir_verify",
+        "name": "Deep Email Verifier",
+        "type": "email_verifier",
+        "category": "tool",
+        "position": {
+          "x": 980,
+          "y": 220
+        },
+        "data": {
+          "emailField": "{{$json.email}}",
+          "checkMx": true,
+          "checkDisposable": true,
+          "checkSmtp": true
+        }
+      },
+      {
+        "id": "dir_crm",
+        "name": "Save to LeadHook CRM",
+        "type": "save_crm_lead",
+        "category": "action",
+        "position": {
+          "x": 1280,
+          "y": 220
+        },
+        "data": {
+          "tags": [
+            "Directory Batch Scraped",
+            "Verified MX Deliverable"
+          ],
+          "stage": "Ready for Outbound Outreach"
+        }
+      },
+      {
+        "id": "dir_airtable",
+        "name": "Airtable Base Sync",
+        "type": "airtable_sync",
+        "category": "integration",
+        "position": {
+          "x": 1580,
+          "y": 220
+        },
+        "data": {
+          "baseName": "Outreach Directory 2026",
+          "tableName": "Verified Prospects"
+        }
+      }
+    ],
+    "edges": [
+      {
+        "id": "de1",
+        "source": "dir_trigger",
+        "target": "dir_scraper",
+        "sourceHandle": "output",
+        "targetHandle": "input"
+      },
+      {
+        "id": "de2",
+        "source": "dir_scraper",
+        "target": "dir_transform",
+        "sourceHandle": "output",
+        "targetHandle": "input"
+      },
+      {
+        "id": "de3",
+        "source": "dir_transform",
+        "target": "dir_verify",
+        "sourceHandle": "output",
+        "targetHandle": "input"
+      },
+      {
+        "id": "de4",
+        "source": "dir_verify",
+        "target": "dir_crm",
+        "sourceHandle": "output",
+        "targetHandle": "input"
+      },
+      {
+        "id": "de5",
+        "source": "dir_crm",
+        "target": "dir_airtable",
+        "sourceHandle": "output",
+        "targetHandle": "input"
+      }
+    ]
+  }
+]

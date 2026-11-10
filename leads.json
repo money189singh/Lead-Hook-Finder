@@ -1,0 +1,58 @@
+[
+  {
+    "id": "lead_1791394655242_1",
+    "name": "Lee Rollins Firestone Auto Repair",
+    "website": "https://www.leerollinsfirestoneautorepair.com",
+    "domain": "leerollinsfirestoneautorepair.com",
+    "emails": [],
+    "phones": [],
+    "extracted_at": "2026-10-07T17:37:35.243Z",
+    "provider": "Oracle Cloud Always Free VM"
+  },
+  {
+    "id": "lead_1791394655606_2",
+    "name": "Aero Auto Repair",
+    "website": "https://www.aeroautorepair.com",
+    "domain": "aeroautorepair.com",
+    "emails": [
+      "aeroautoparts39@gmail.com"
+    ],
+    "phones": [
+      "773-873-9319",
+      "942.2210850",
+      "6277619988"
+    ],
+    "extracted_at": "2026-10-07T17:37:35.606Z",
+    "provider": "Oracle Cloud Always Free VM"
+  },
+  {
+    "id": "lead_1791394655695_3",
+    "name": "Phan's Auto Repair",
+    "website": "https://www.phansautorepair.com",
+    "domain": "phansautorepair.com",
+    "emails": [],
+    "phones": [],
+    "extracted_at": "2026-10-07T17:37:35.695Z",
+    "provider": "Oracle Cloud Always Free VM"
+  },
+  {
+    "id": "lead_1791394655870_4",
+    "name": "Speedy Auto Repair & Smog",
+    "website": "https://www.speedyautorepairsmog.com",
+    "domain": "speedyautorepairsmog.com",
+    "emails": [],
+    "phones": [],
+    "extracted_at": "2026-10-07T17:37:35.870Z",
+    "provider": "Oracle Cloud Always Free VM"
+  },
+  {
+    "id": "lead_1791394655960_5",
+    "name": "ATG Auto Repair & Mechanic Shop",
+    "website": "https://www.atgautorepairmechanicshop.com",
+    "domain": "atgautorepairmechanicshop.com",
+    "emails": [],
+    "phones": [],
+    "extracted_at": "2026-10-07T17:37:35.960Z",
+    "provider": "Oracle Cloud Always Free VM"
+  }
+]

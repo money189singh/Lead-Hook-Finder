@@ -1,0 +1,538 @@
+{
+  "entities": {
+    "UserProfile": {
+      "title": "UserProfile",
+      "description": "User profile information",
+      "type": "object",
+      "properties": {
+        "userId": {
+          "type": "string",
+          "description": "The unique Firebase Auth UID of the user",
+          "maxLength": 128
+        },
+        "email": {
+          "type": "string",
+          "description": "The email address of the user",
+          "maxLength": 256
+        },
+        "displayName": {
+          "type": "string",
+          "description": "Display name of the user",
+          "maxLength": 128
+        },
+        "photoURL": {
+          "type": "string",
+          "description": "Avatar photo URL of the user",
+          "maxLength": 1024
+        },
+        "createdAt": {
+          "type": "string",
+          "description": "ISO timestamp of user profile creation",
+          "maxLength": 64
+        },
+        "updatedAt": {
+          "type": "string",
+          "description": "ISO timestamp of last user profile update",
+          "maxLength": 64
+        }
+      },
+      "required": ["userId", "email"]
+    },
+    "UserSettings": {
+      "title": "UserSettings",
+      "description": "User specific scraping preferences and configurations",
+      "type": "object",
+      "properties": {
+        "userId": {
+          "type": "string",
+          "description": "User ID owning this settings document",
+          "maxLength": 128
+        },
+        "max_pages": {
+          "type": "number",
+          "description": "Maximum pages per website"
+        },
+        "max_contacts": {
+          "type": "number",
+          "description": "Maximum contacts per website"
+        },
+        "smart_discovery": {
+          "type": "boolean",
+          "description": "Whether to use smart link discovery"
+        },
+        "concurrency": {
+          "type": "number",
+          "description": "Crawl worker concurrency"
+        },
+        "request_delay_ms": {
+          "type": "number",
+          "description": "Polite delay between requests in milliseconds"
+        },
+        "timeout_ms": {
+          "type": "number",
+          "description": "HTTP request timeout in milliseconds"
+        },
+        "retry_count": {
+          "type": "number",
+          "description": "Retry count for failed page fetches"
+        },
+        "routing_strategy": {
+          "type": "string",
+          "description": "AI provider routing strategy",
+          "maxLength": 64
+        },
+        "priority_roles": {
+          "type": "string",
+          "description": "Serialized priority roles list or comma-separated list",
+          "maxLength": 4096
+        },
+        "generic_email_patterns": {
+          "type": "string",
+          "description": "Serialized generic email patterns",
+          "maxLength": 4096
+        },
+        "ai_agent_rules": {
+          "type": "string",
+          "description": "Prompt instructions for AI extraction",
+          "maxLength": 8192
+        },
+        "custom_rules": {
+          "type": "string",
+          "description": "User custom rules for extraction",
+          "maxLength": 8192
+        },
+        "theme": {
+          "type": "string",
+          "description": "UI theme preference (dark/light/system)",
+          "maxLength": 32
+        },
+        "updatedAt": {
+          "type": "string",
+          "description": "ISO timestamp of last update",
+          "maxLength": 64
+        }
+      },
+      "required": ["userId"]
+    },
+    "ScrapeJobRecord": {
+      "title": "ScrapeJobRecord",
+      "description": "A completed or running scraping batch and extracted contacts",
+      "type": "object",
+      "properties": {
+        "id": {
+          "type": "string",
+          "description": "Unique identifier of the scraping job",
+          "maxLength": 128
+        },
+        "userId": {
+          "type": "string",
+          "description": "The UID of the user who initiated the job",
+          "maxLength": 128
+        },
+        "date": {
+          "type": "string",
+          "description": "Human-readable date of the scraping run",
+          "maxLength": 128
+        },
+        "created_at": {
+          "type": "string",
+          "description": "ISO timestamp of creation",
+          "maxLength": 64
+        },
+        "status": {
+          "type": "string",
+          "description": "Current status of the job",
+          "maxLength": 64
+        },
+        "total_websites": {
+          "type": "number",
+          "description": "Total websites in batch"
+        },
+        "completed_websites": {
+          "type": "number",
+          "description": "Number of successfully completed websites"
+        },
+        "failed_websites": {
+          "type": "number",
+          "description": "Number of failed websites"
+        },
+        "contacts_found": {
+          "type": "number",
+          "description": "Total contacts extracted"
+        },
+        "emails_found": {
+          "type": "number",
+          "description": "Total emails extracted"
+        },
+        "websites_summary": {
+          "type": "string",
+          "description": "JSON serialized summary of websites",
+          "maxLength": 65536
+        },
+        "websites_json": {
+          "type": "string",
+          "description": "JSON serialized full website results",
+          "maxLength": 524288
+        },
+        "contacts_json": {
+          "type": "string",
+          "description": "JSON serialized contacts list",
+          "maxLength": 524288
+        }
+      },
+      "required": ["id", "userId", "created_at"]
+    },
+    "DiscoveryJobRecord": {
+      "title": "DiscoveryJobRecord",
+      "description": "AI web discovery run containing discovered companies and decision makers",
+      "type": "object",
+      "properties": {
+        "id": {
+          "type": "string",
+          "description": "Unique identifier of the discovery job",
+          "maxLength": 128
+        },
+        "userId": {
+          "type": "string",
+          "description": "The UID of the user who initiated the discovery",
+          "maxLength": 128
+        },
+        "status": {
+          "type": "string",
+          "description": "Current status of the discovery job",
+          "maxLength": 64
+        },
+        "created_at": {
+          "type": "string",
+          "description": "ISO timestamp of creation",
+          "maxLength": 64
+        },
+        "uniqueCompanies": {
+          "type": "number",
+          "description": "Total unique companies found"
+        },
+        "emailsFound": {
+          "type": "number",
+          "description": "Total emails extracted"
+        },
+        "peopleFound": {
+          "type": "number",
+          "description": "Total decision makers found"
+        },
+        "criteria_json": {
+          "type": "string",
+          "description": "JSON serialized criteria",
+          "maxLength": 65536
+        },
+        "prospects_json": {
+          "type": "string",
+          "description": "JSON serialized prospects list",
+          "maxLength": 524288
+        }
+      },
+      "required": ["id", "userId"]
+    },
+    "CompanyRecord": {
+      "title": "CompanyRecord",
+      "description": "Company document with firmographics, employee count, and founded year",
+      "type": "object",
+      "properties": {
+        "id": {
+          "type": "string",
+          "description": "Unique company ID (e.g. domain or URL slug)",
+          "maxLength": 128
+        },
+        "userId": {
+          "type": "string",
+          "description": "The UID of the user owning this company record",
+          "maxLength": 128
+        },
+        "domain": {
+          "type": "string",
+          "description": "Primary company website domain",
+          "maxLength": 256
+        },
+        "url": {
+          "type": "string",
+          "description": "Primary company website URL",
+          "maxLength": 1024
+        },
+        "company_name": {
+          "type": "string",
+          "description": "Official company name",
+          "maxLength": 256
+        },
+        "employee_count": {
+          "type": "string",
+          "description": "Exact verified employee count",
+          "maxLength": 64
+        },
+        "employee_range": {
+          "type": "string",
+          "description": "Employee range if source provides a range",
+          "maxLength": 64
+        },
+        "employee_tier": {
+          "type": "string",
+          "description": "Standard company size bracket",
+          "maxLength": 64
+        },
+        "founded_year": {
+          "type": "string",
+          "description": "Exact 4-digit founding year",
+          "maxLength": 32
+        },
+        "employee_count_source_url": {
+          "type": "string",
+          "description": "Source URL where employee count was verified",
+          "maxLength": 1024
+        },
+        "founded_year_source_url": {
+          "type": "string",
+          "description": "Source URL where founding year was verified",
+          "maxLength": 1024
+        },
+        "confidence": {
+          "type": "string",
+          "description": "Evidence status or confidence level",
+          "maxLength": 64
+        },
+        "industry": {
+          "type": "string",
+          "description": "Industry or vertical",
+          "maxLength": 128
+        },
+        "location": {
+          "type": "string",
+          "description": "Physical headquarters address or city/state",
+          "maxLength": 256
+        },
+        "headquarters": {
+          "type": "string",
+          "description": "Headquarters city and state",
+          "maxLength": 256
+        },
+        "last_checked_date": {
+          "type": "string",
+          "description": "ISO timestamp of last checked date",
+          "maxLength": 64
+        },
+        "company_description": {
+          "type": "string",
+          "description": "Factual researched company description",
+          "maxLength": 2048
+        },
+        "business_category": {
+          "type": "string",
+          "description": "Business vertical or category",
+          "maxLength": 128
+        },
+        "linkedin_url": {
+          "type": "string",
+          "description": "Public company LinkedIn page URL",
+          "maxLength": 1024
+        },
+        "incorporation_year": {
+          "type": "string",
+          "description": "Legal incorporation year if distinct from founding",
+          "maxLength": 32
+        },
+        "decision_makers_json": {
+          "type": "string",
+          "description": "Serialized JSON array of publicly documented decision-makers and leadership",
+          "maxLength": 65536
+        },
+        "research_sources_json": {
+          "type": "string",
+          "description": "Serialized JSON array of research sources and citations",
+          "maxLength": 65536
+        },
+        "research_last_run": {
+          "type": "string",
+          "description": "ISO timestamp of last external AI research run",
+          "maxLength": 64
+        },
+        "research_status": {
+          "type": "string",
+          "description": "Status of external research run",
+          "maxLength": 64
+        },
+        "discovery_status": {
+          "type": "string",
+          "description": "Status of prospect discovery workflow",
+          "maxLength": 64
+        },
+        "activity_status": {
+          "type": "string",
+          "description": "Status of recent business activity research",
+          "maxLength": 64
+        },
+        "enrichment_status": {
+          "type": "string",
+          "description": "Status of website enrichment workflow",
+          "maxLength": 64
+        },
+        "last_discovery_date": {
+          "type": "string",
+          "description": "ISO timestamp when discovery was last performed",
+          "maxLength": 64
+        },
+        "last_activity_date": {
+          "type": "string",
+          "description": "ISO timestamp when recent activity was last checked",
+          "maxLength": 64
+        },
+        "last_enrichment_date": {
+          "type": "string",
+          "description": "ISO timestamp when official website was last crawled and enriched",
+          "maxLength": 64
+        },
+        "recent_activity_json": {
+          "type": "string",
+          "description": "Serialized JSON array of recent business activities and evidence",
+          "maxLength": 65536
+        },
+        "updatedAt": {
+          "type": "string",
+          "description": "ISO timestamp of last update",
+          "maxLength": 64
+        }
+      },
+      "required": ["id", "userId", "domain"]
+    },
+    "EmailVerificationRecord": {
+      "title": "EmailVerificationRecord",
+      "description": "Self-hosted email verification results with DNS, syntax, disposable and SMTP checks",
+      "type": "object",
+      "properties": {
+        "id": {
+          "type": "string",
+          "description": "Unique verification record ID (e.g. hash of normalized email and company)",
+          "maxLength": 128
+        },
+        "userId": {
+          "type": "string",
+          "description": "The UID of the user who owns this verified email record",
+          "maxLength": 128
+        },
+        "email": {
+          "type": "string",
+          "description": "Original displayed email address",
+          "maxLength": 256
+        },
+        "normalized_email": {
+          "type": "string",
+          "description": "Normalized lowercase trimmed email address",
+          "maxLength": 256
+        },
+        "company_id": {
+          "type": "string",
+          "description": "Associated company ID or domain",
+          "maxLength": 128
+        },
+        "company_name": {
+          "type": "string",
+          "description": "Company name",
+          "maxLength": 256
+        },
+        "source_url": {
+          "type": "string",
+          "description": "Page or website URL where email was extracted",
+          "maxLength": 1024
+        },
+        "email_category": {
+          "type": "string",
+          "description": "Email category (professional_personal, generic_business, personal_provider, unknown)",
+          "maxLength": 64
+        },
+        "verification_status": {
+          "type": "string",
+          "description": "Primary verification verdict: Valid, Invalid, Risky, Unknown, or Not checked",
+          "maxLength": 32
+        },
+        "syntax_status": {
+          "type": "string",
+          "description": "Syntax check status: valid or invalid",
+          "maxLength": 32
+        },
+        "domain_status": {
+          "type": "string",
+          "description": "Domain DNS status: valid, invalid, unknown, timeout, error",
+          "maxLength": 32
+        },
+        "mx_status": {
+          "type": "string",
+          "description": "Mail exchange record status: valid, fallback_a, missing, timeout, error",
+          "maxLength": 32
+        },
+        "disposable_status": {
+          "type": "string",
+          "description": "Disposable domain status: clean or disposable",
+          "maxLength": 32
+        },
+        "smtp_status": {
+          "type": "string",
+          "description": "SMTP probe status: accepted, rejected, catch_all, blocked, timeout, unavailable, disabled, skipped",
+          "maxLength": 32
+        },
+        "verification_provider": {
+          "type": "string",
+          "description": "Verification engine identifier (self_hosted)",
+          "maxLength": 64
+        },
+        "verified_at": {
+          "type": "string",
+          "description": "ISO timestamp of initial verification",
+          "maxLength": 64
+        },
+        "last_checked_at": {
+          "type": "string",
+          "description": "ISO timestamp of last check",
+          "maxLength": 64
+        },
+        "verification_error": {
+          "type": "string",
+          "description": "Error or failure explanation if check failed",
+          "maxLength": 1024
+        },
+        "verification_details": {
+          "type": "string",
+          "description": "Serialized JSON of detailed check results, MX records, and latency",
+          "maxLength": 65536
+        },
+        "updatedAt": {
+          "type": "string",
+          "description": "ISO timestamp of last update",
+          "maxLength": 64
+        }
+      },
+      "required": ["id", "userId", "email", "normalized_email", "verification_status"]
+    }
+  },
+  "firestore": {
+    "/users/{userId}": {
+      "schema": "UserProfile",
+      "description": "User profile document containing account metadata"
+    },
+    "/users/{userId}/settings/{settingsId}": {
+      "schema": "UserSettings",
+      "description": "User preferences, scraping parameters, and theme configuration"
+    },
+    "/users/{userId}/scrapeJobs/{jobId}": {
+      "schema": "ScrapeJobRecord",
+      "description": "Scraping jobs and extraction results owned by the user"
+    },
+    "/users/{userId}/discoveryJobs/{jobId}": {
+      "schema": "DiscoveryJobRecord",
+      "description": "AI prospect discovery jobs and leads owned by the user"
+    },
+    "/users/{userId}/companies/{companyId}": {
+      "schema": "CompanyRecord",
+      "description": "Company firmographics, employee count, and founding year"
+    },
+    "/users/{userId}/verifiedEmails/{emailId}": {
+      "schema": "EmailVerificationRecord",
+      "description": "Self-hosted email verification records and multi-stage check diagnostics"
+    }
+  }
+}

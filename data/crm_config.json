@@ -1,0 +1,44 @@
+{
+  "active_provider": "in_house",
+  "auto_sync_enabled": true,
+  "in_house": {
+    "endpoint_url": "https://httpbin.org/post",
+    "http_method": "POST",
+    "auth_type": "bearer",
+    "auth_token": "test_token_secret_xyz",
+    "api_key_header": "X-API-Key",
+    "api_key_value": "",
+    "custom_headers": {},
+    "field_mapping": {
+      "name_field": "name",
+      "email_field": "email",
+      "company_field": "company",
+      "phone_field": "phone",
+      "title_field": "title",
+      "source_field": "source",
+      "intent_field": "intent_score",
+      "urgency_field": "urgency",
+      "budget_field": "budget",
+      "notes_field": "notes",
+      "url_field": "post_url"
+    }
+  },
+  "salesforce": {
+    "mode": "web_to_lead",
+    "instance_url": "",
+    "access_token": "",
+    "lead_object": "Lead",
+    "oid": "",
+    "web_to_lead_url": "https://webto.salesforce.com/servlet/servlet.WebToLead?encoding=UTF-8",
+    "lead_source": "LeadHook Social Demand Radar"
+  },
+  "hubspot": {
+    "access_token": "",
+    "lifecycle_stage": "lead",
+    "lead_status": "OPEN_DEAL"
+  },
+  "pipedrive": {
+    "api_token": "",
+    "company_domain": ""
+  }
+}

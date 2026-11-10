@@ -1,0 +1,42 @@
+version: '3.8'
+
+services:
+  # LeadHook Web UI & API
+  leadhook-web:
+    build:
+      context: .
+      dockerfile: Dockerfile.worker
+    command: ["node", "dist/server.cjs"]
+    ports:
+      - "3000:3000"
+    volumes:
+      - ./data:/app/data
+    environment:
+      - NODE_ENV=production
+      - PORT=3000
+      - DISABLE_EMBEDDED_WORKER=true
+      - GEMINI_API_KEY=${GEMINI_API_KEY}
+      - GOOGLE_MAPS_API_KEY=${GOOGLE_MAPS_API_KEY}
+      - SEARCH_API_KEY=${SEARCH_API_KEY}
+    restart: unless-stopped
+
+  # DigitalOcean Background Worker Service
+  leadhook-worker:
+    build:
+      context: .
+      dockerfile: Dockerfile.worker
+    command: ["node", "dist/worker.cjs"]
+    volumes:
+      - ./data:/app/data
+    environment:
+      - NODE_ENV=production
+      - DIGITALOCEAN_WORKER_ID=leadhook-do-worker-01
+      - WORKER_CONCURRENCY=5
+      - WORKER_POLL_INTERVAL_MS=2500
+      - HEARTBEAT_INTERVAL_MS=5000
+      - GEMINI_API_KEY=${GEMINI_API_KEY}
+      - GOOGLE_MAPS_API_KEY=${GOOGLE_MAPS_API_KEY}
+      - SEARCH_API_KEY=${SEARCH_API_KEY}
+    restart: unless-stopped
+    depends_on:
+      - leadhook-web

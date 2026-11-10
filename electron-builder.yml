@@ -1,0 +1,40 @@
+appId: com.websitecontactscraper.app
+productName: Website Contact Scraper
+directories:
+  output: dist_installer
+  buildResources: public
+
+files:
+  - "dist/**/*"
+  - "electron/**/*"
+  - "public/**/*"
+  - "package.json"
+
+extraResources:
+  - from: "backend/dist"
+    to: "backend/dist"
+    filter:
+      - "**/*"
+
+win:
+  target:
+    - target: nsis
+      arch:
+        - x64
+    - target: portable
+      arch:
+        - x64
+  artifactName: "WebsiteContactScraperSetup.${ext}"
+
+nsis:
+  oneClick: true
+  perMachine: false
+  allowElevation: false
+  allowToChangeInstallationDirectory: false
+  createDesktopShortcut: true
+  createStartMenuShortcut: true
+  shortcutName: "Website Contact Scraper"
+  runAfterFinish: true
+
+portable:
+  artifactName: "WebsiteContactScraper.exe"

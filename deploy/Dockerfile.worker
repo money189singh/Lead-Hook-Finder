@@ -1,0 +1,21 @@
+# Dockerfile for Standalone Cloud VM Worker
+FROM node:20-slim AS runner
+
+WORKDIR /app
+
+# Install build dependencies
+RUN apt-get update && apt-get install -y --no-install-recommends \
+    ca-certificates \
+    curl \
+    && rm -rf /var/lib/apt/lists/*
+
+COPY package*.json ./
+RUN npm ci --omit=dev
+
+COPY . .
+
+ENV NODE_ENV=production
+ENV CLOUD_VM_HOST=true
+ENV WORKER_CONCURRENCY=5
+
+CMD ["npm", "run", "worker"]

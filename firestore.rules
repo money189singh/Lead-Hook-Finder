@@ -1,0 +1,114 @@
+rules_version = '2';
+service cloud.firestore {
+  match /databases/{database}/documents {
+
+    // Default deny catch-all
+    match /{document=**} {
+      allow read, write: if false;
+    }
+
+    // Helper functions
+    function isSignedIn() {
+      return request.auth != null;
+    }
+
+    function isOwner(userId) {
+      return isSignedIn() && request.auth.uid == userId;
+    }
+
+    function isValidId(id) {
+      return id is string && id.size() > 0 && id.size() <= 128 && id.matches('^[a-zA-Z0-9_\\-\\.:]+$');
+    }
+
+    // User profile validation
+    function isValidUserProfile(data) {
+      return data.userId is string && data.userId == request.auth.uid
+        && data.email is string && data.email.size() <= 256;
+    }
+
+    // User settings validation
+    function isValidUserSettings(data) {
+      return data.userId is string && data.userId == request.auth.uid;
+    }
+
+    // User scraping job validation
+    function isValidScrapeJob(data) {
+      return data.id is string && data.id.size() <= 128
+        && data.userId is string && data.userId == request.auth.uid;
+    }
+
+    // User discovery job validation
+    function isValidDiscoveryJob(data) {
+      return data.id is string && data.id.size() <= 128
+        && data.userId is string && data.userId == request.auth.uid;
+    }
+
+    // User company document validation
+    function isValidCompany(data) {
+      return data.id is string && data.id.size() <= 128
+        && data.userId is string && data.userId == request.auth.uid;
+    }
+
+    // User verified email validation
+    function isValidVerifiedEmail(data) {
+      return data.id is string && data.id.size() <= 128
+        && data.userId is string && data.userId == request.auth.uid
+        && data.email is string && data.email.size() <= 256
+        && data.verification_status is string;
+    }
+
+    // User profiles
+    match /users/{userId} {
+      allow get: if isOwner(userId);
+      allow list: if false;
+      allow create: if isOwner(userId) && isValidUserProfile(request.resource.data);
+      allow update: if isOwner(userId) && isValidUserProfile(request.resource.data);
+      allow delete: if isOwner(userId);
+
+      // User Settings Subcollection
+      match /settings/{settingsId} {
+        allow get: if isOwner(userId);
+        allow list: if isOwner(userId);
+        allow create: if isOwner(userId) && isValidUserSettings(request.resource.data);
+        allow update: if isOwner(userId) && isValidUserSettings(request.resource.data);
+        allow delete: if isOwner(userId);
+      }
+
+      // User Scraping Jobs Subcollection
+      match /scrapeJobs/{jobId} {
+        allow get: if isOwner(userId);
+        allow list: if isOwner(userId);
+        allow create: if isOwner(userId) && isValidScrapeJob(request.resource.data);
+        allow update: if isOwner(userId) && isValidScrapeJob(request.resource.data);
+        allow delete: if isOwner(userId);
+      }
+
+      // User Discovery Jobs Subcollection
+      match /discoveryJobs/{jobId} {
+        allow get: if isOwner(userId);
+        allow list: if isOwner(userId);
+        allow create: if isOwner(userId) && isValidDiscoveryJob(request.resource.data);
+        allow update: if isOwner(userId) && isValidDiscoveryJob(request.resource.data);
+        allow delete: if isOwner(userId);
+      }
+
+      // User Companies Subcollection
+      match /companies/{companyId} {
+        allow get: if isOwner(userId);
+        allow list: if isOwner(userId);
+        allow create: if isOwner(userId) && isValidCompany(request.resource.data);
+        allow update: if isOwner(userId) && isValidCompany(request.resource.data);
+        allow delete: if isOwner(userId);
+      }
+
+      // User Verified Emails Subcollection
+      match /verifiedEmails/{emailId} {
+        allow get: if isOwner(userId);
+        allow list: if isOwner(userId);
+        allow create: if isOwner(userId) && isValidVerifiedEmail(request.resource.data);
+        allow update: if isOwner(userId) && isValidVerifiedEmail(request.resource.data);
+        allow delete: if isOwner(userId);
+      }
+    }
+  }
+}

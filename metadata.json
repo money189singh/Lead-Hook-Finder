@@ -1,0 +1,6 @@
+{
+  "name": "LeadHook",
+  "description": "LeadHook website contact scraper with AI extraction, multi-level business verification ladder (Google Maps, Search signals, Registry status, AI synthesis), automated social profile discovery, company firmographics, and ICP scoring.",
+  "requestFramePermissions": [],
+  "majorCapabilities": ["MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"]
+}

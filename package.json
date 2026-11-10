@@ -1,0 +1,48 @@
+{
+  "name": "react-example",
+  "private": true,
+  "version": "0.0.0",
+  "type": "module",
+  "scripts": {
+    "dev": "tsx server.ts",
+    "worker": "tsx server/worker/cloudVmWorker.ts",
+    "worker:build": "esbuild server/worker/cloudVmWorker.ts --bundle --platform=node --format=cjs --packages=external --sourcemap --outfile=dist/worker.cjs",
+    "build": "vite build && esbuild server.ts --bundle --platform=node --format=cjs --packages=external --sourcemap --outfile=dist/server.cjs && npm run worker:build",
+    "start": "node dist/server.cjs",
+    "start:worker": "node dist/worker.cjs",
+    "preview": "vite preview",
+    "clean": "rm -rf dist server.cjs",
+    "lint": "tsc --noEmit",
+    "package": "electron-builder build --win"
+  },
+  "dependencies": {
+    "@google/genai": "^2.32.0",
+    "@tailwindcss/vite": "^4.1.14",
+    "@types/sql.js": "^1.4.11",
+    "@types/ssh2": "^1.15.6",
+    "@vitejs/plugin-react": "^5.0.4",
+    "cheerio": "^1.2.0",
+    "dotenv": "^17.2.3",
+    "express": "^4.21.2",
+    "firebase": "^12.19.0",
+    "lucide-react": "^0.546.0",
+    "motion": "^12.23.24",
+    "react": "^19.0.1",
+    "react-dom": "^19.0.1",
+    "socks-proxy-agent": "^10.1.0",
+    "sql.js": "^1.14.2",
+    "ssh2": "^1.17.0",
+    "vite": "^6.2.3",
+    "xlsx": "^0.18.5"
+  },
+  "devDependencies": {
+    "@types/node": "^22.14.0",
+    "autoprefixer": "^10.4.21",
+    "esbuild": "^0.25.0",
+    "tailwindcss": "^4.1.14",
+    "tsx": "^4.21.0",
+    "typescript": "~5.8.2",
+    "vite": "^6.2.3",
+    "@types/express": "^4.17.21"
+  }
+}

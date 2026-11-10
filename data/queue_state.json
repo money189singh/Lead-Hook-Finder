@@ -1,0 +1,12 @@
+{
+  "metrics": {
+    "pendingTasks": 0,
+    "activeWorkers": 1,
+    "completedTasks": 0,
+    "failedTasks": 0,
+    "throughputPerMinute": 0,
+    "avgDomainCrawlMs": 2500,
+    "estimatedTimeRemainingSec": 0
+  },
+  "savedAt": "2026-10-06T19:26:24.809Z"
+}

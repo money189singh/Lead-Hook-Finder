@@ -1,0 +1,93 @@
+[
+  {
+    "id": "vjob_1790942250986_pu9a3",
+    "status": "completed",
+    "total": 2,
+    "processed": 2,
+    "valid_count": 2,
+    "invalid_count": 0,
+    "risky_count": 0,
+    "unknown_count": 0,
+    "started_at": "2026-10-02T11:57:30.986Z",
+    "results": [
+      {
+        "email": "contact@apple.com",
+        "normalized_email": "contact@apple.com",
+        "email_category": "generic_business",
+        "verification_status": "Valid",
+        "syntax_status": "valid",
+        "domain_status": "valid",
+        "mx_status": "valid",
+        "disposable_status": "clean",
+        "smtp_status": "skipped",
+        "verification_provider": "self_hosted",
+        "verified_at": "2026-10-02T11:57:30.987Z",
+        "last_checked_at": "2026-10-02T11:57:30.987Z",
+        "verification_details": {
+          "reason": "Syntax valid; domain verified with active MX record (mx-in.g.apple.com) [Role: General Inquiries]",
+          "mx_records": [
+            {
+              "exchange": "mx-in.g.apple.com",
+              "priority": 10
+            },
+            {
+              "exchange": "mx-in-rn.apple.com",
+              "priority": 20
+            },
+            {
+              "exchange": "mx-in-vib.apple.com",
+              "priority": 20
+            },
+            {
+              "exchange": "mx-in-hfd.apple.com",
+              "priority": 20
+            },
+            {
+              "exchange": "mx-in-sg.apple.com",
+              "priority": 20
+            },
+            {
+              "exchange": "mx-in-ma.apple.com",
+              "priority": 20
+            }
+          ],
+          "has_fallback_a": false,
+          "a_records": [],
+          "is_role_account": true,
+          "role_department": "General Inquiries",
+          "latency_ms": 4
+        }
+      },
+      {
+        "email": "info@microsoft.com",
+        "normalized_email": "info@microsoft.com",
+        "email_category": "generic_business",
+        "verification_status": "Valid",
+        "syntax_status": "valid",
+        "domain_status": "valid",
+        "mx_status": "valid",
+        "disposable_status": "clean",
+        "smtp_status": "skipped",
+        "verification_provider": "self_hosted",
+        "verified_at": "2026-10-02T11:57:30.987Z",
+        "last_checked_at": "2026-10-02T11:57:30.987Z",
+        "verification_details": {
+          "reason": "Syntax valid; domain verified with active MX record (microsoft-com.mail.protection.outlook.com) [Role: General Inquiries]",
+          "mx_records": [
+            {
+              "exchange": "microsoft-com.mail.protection.outlook.com",
+              "priority": 10
+            }
+          ],
+          "has_fallback_a": false,
+          "a_records": [],
+          "is_role_account": true,
+          "role_department": "General Inquiries",
+          "latency_ms": 16
+        }
+      }
+    ],
+    "current_email": "info@microsoft.com",
+    "completed_at": "2026-10-02T11:57:31.004Z"
+  }
+]
